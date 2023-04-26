@@ -3,9 +3,15 @@ package jm.task.core.jdbc.dao;
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
+
+    private final SessionFactory sessionFactory = Util.getSessionFactory();
+    private Transaction transaction = null;
 
     public UserDaoHibernateImpl() {
 
@@ -13,55 +19,110 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void createUsersTable() {
-        Session session = Util.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        session.createSQLQuery("CREATE TABLE IF NOT EXISTS Users" +
-                "(id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(255), lastname VARCHAR(255), age TINYINT, PRIMARY KEY (id));")
-                .executeUpdate();
-        session.getTransaction().commit();
+        try (Session session = sessionFactory.openSession()) {
+            try {
+                transaction = session.getTransaction();
+                transaction.begin();
+                session.createSQLQuery("CREATE TABLE IF NOT EXISTS Users" +
+                                "(id BIGINT NOT NULL AUTO_INCREMENT, name VARCHAR(255), lastname VARCHAR(255), age TINYINT, PRIMARY KEY (id));")
+                        .executeUpdate();
+                transaction.commit();
+            } catch (Exception e) {
+                if (transaction != null)
+                    transaction.rollback();
+                e.printStackTrace();
+                System.out.println(e.getMessage());
+            }
+        }
     }
 
     @Override
     public void dropUsersTable() {
-        Session session = Util.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        session.createSQLQuery("DROP TABLE IF EXISTS Users;").executeUpdate();
-        session.getTransaction().commit();
+        try (Session session = sessionFactory.openSession()) {
+            try {
+                transaction = session.getTransaction();
+                transaction.begin();
+                session.createSQLQuery("DROP TABLE IF EXISTS Users;").executeUpdate();
+                transaction.commit();
+            } catch (Exception e) {
+                if (transaction != null)
+                    transaction.rollback();
+                e.printStackTrace();
+                System.out.println(e.getMessage());
+            }
+        }
     }
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        Session session = Util.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        User user = new User(name, lastName, age);
-        session.save(user);
-        System.out.printf("User с именем - %s добавлен в базу данных\n", name);
-        session.getTransaction().commit();
+        try (Session session = sessionFactory.openSession()) {
+            try {
+                transaction = session.getTransaction();
+                transaction.begin();
+                User user = new User(name, lastName, age);
+                session.save(user);
+                System.out.printf("User с именем - %s добавлен в базу данных\n", name);
+                transaction.commit();
+            } catch (Exception e) {
+                if (transaction != null)
+                    transaction.rollback();
+                e.printStackTrace();
+                System.out.println(e.getMessage());
+            }
+        }
     }
 
     @Override
     public void removeUserById(long id) {
-        Session session = Util.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        User user = session.get(User.class, id);
-        session.delete(user);
-        session.getTransaction().commit();
+        try (Session session = sessionFactory.openSession()) {
+            try {
+                transaction = session.getTransaction();
+                transaction.begin();
+                User user = session.get(User.class, id);
+                session.delete(user);
+                transaction.commit();
+            } catch (Exception e) {
+                if (transaction != null)
+                    transaction.rollback();
+                e.printStackTrace();
+                System.out.println(e.getMessage());
+            }
+        }
     }
 
     @Override
     public List<User> getAllUsers() {
-        Session session = Util.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        List<User> users = session.createQuery("FROM User").getResultList();
-        session.getTransaction().commit();
+        List<User> users = null;
+        try (Session session = sessionFactory.openSession()) {
+            try {
+                transaction = session.getTransaction();
+                transaction.begin();
+                users = session.createQuery("FROM User").getResultList();
+                transaction.commit();
+            } catch (Exception e) {
+                if (transaction != null)
+                    transaction.rollback();
+                e.printStackTrace();
+                System.out.println(e.getMessage());
+            }
+        }
         return users;
     }
 
     @Override
     public void cleanUsersTable() {
-        Session session = Util.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        session.createQuery("DELETE User").executeUpdate();
-        session.getTransaction().commit();
+        try (Session session = sessionFactory.openSession()) {
+            try {
+                transaction = session.getTransaction();
+                transaction.begin();
+                session.createQuery("DELETE User").executeUpdate();
+                transaction.commit();
+            } catch (Exception e) {
+                if (transaction != null)
+                    transaction.rollback();
+                e.printStackTrace();
+                System.out.println(e.getMessage());
+            }
+        }
     }
 }

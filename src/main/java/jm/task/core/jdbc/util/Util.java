@@ -42,9 +42,9 @@ public class Util {
         configuration.setProperty("hibernate.connection.username", userName);
         configuration.setProperty("hibernate.connection.password", paswd);
         configuration.setProperty("hibernate.show_sql", "true");
-        configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL8Dialect");
-        configuration.setProperty("hibernate.current_session_context_class", "thread");
-        //configuration.setProperty("hibernate.hbm2ddl.auto", "update");
+//        configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL8Dialect");
+//        configuration.setProperty("hibernate.current_session_context_class", "thread");
+//        configuration.setProperty("hibernate.hbm2ddl.auto", "update");
         configuration.addAnnotatedClass(User.class);
 
         sessionFactory = configuration.buildSessionFactory();

@@ -18,7 +18,6 @@ public class Main {
             use.dropUsersTable();
         } finally {
             Util.closeFactory();
-            System.out.println("close ok");
         }
     }
 }
